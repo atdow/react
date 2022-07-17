@@ -358,22 +358,24 @@ export function jsxDEV(type, config, maybeKey, source, self) {
 /**
  * Create and return a new ReactElement of the given type.
  * See https://reactjs.org/docs/react-api.html#createelement
+ *
+ * createElement只是做了简单的参数验证，返回一个ReactElement实例对象，也就是虚拟元素的实例
+ *
+ * Virtual DOM模型通过createElement创建虚拟元素
  */
 export function createElement(type, config, children) {
+  // 初始化参数
   let propName;
-
   // Reserved names are extracted
   const props = {};
-
   let key = null;
   let ref = null;
   let self = null;
   let source = null;
-
+  // 如果存在config，就提取里面的内容
   if (config != null) {
     if (hasValidRef(config)) {
       ref = config.ref;
-
       if (__DEV__) {
         warnIfStringRefCannotBeAutoConverted(config);
       }
@@ -384,7 +386,6 @@ export function createElement(type, config, children) {
       }
       key = '' + config.key;
     }
-
     self = config.__self === undefined ? null : config.__self;
     source = config.__source === undefined ? null : config.__source;
     // Remaining properties are added to a new props object
@@ -400,10 +401,11 @@ export function createElement(type, config, children) {
 
   // Children can be more than one argument, and those are transferred onto
   // the newly allocated props object.
+  // 处理children，全部挂载到props的children属性上，如果只有一个参数，直接赋值给children，否则做合并处理
   const childrenLength = arguments.length - 2;
   if (childrenLength === 1) {
-    props.children = children;
-  } else if (childrenLength > 1) {
+    props.children = children; // 直接赋值
+  } else if (childrenLength > 1) { // 合并处理
     const childArray = Array(childrenLength);
     for (let i = 0; i < childrenLength; i++) {
       childArray[i] = arguments[i + 2];
@@ -417,6 +419,7 @@ export function createElement(type, config, children) {
   }
 
   // Resolve default props
+  // 如果某个prop为空且存在默认的prop，则将默认prop赋给当前的prop
   if (type && type.defaultProps) {
     const defaultProps = type.defaultProps;
     for (propName in defaultProps) {
@@ -439,6 +442,7 @@ export function createElement(type, config, children) {
       }
     }
   }
+  // 返回一个ReactElement实例
   return ReactElement(
     type,
     key,

@@ -1135,6 +1135,7 @@ function validateIterable(iterable, iteratorFn: Function): void {
 
 // This function by it self renders a node and consumes the task by mutating it
 // to update the current execution state.
+// 创建响应式node
 function renderNodeDestructive(
   request: Request,
   task: Task,
@@ -1144,9 +1145,10 @@ function renderNodeDestructive(
   // something suspends.
   task.node = node;
 
-  // Handle object types
+  // Handle object types 处理对象类型
   if (typeof node === 'object' && node !== null) {
     switch ((node: any).$$typeof) {
+      // 创建react元素
       case REACT_ELEMENT_TYPE: {
         const element: React$Element<any> = (node: any);
         const type = element.type;
@@ -1172,7 +1174,7 @@ function renderNodeDestructive(
         }
       }
     }
-
+    // 渲染数组类型
     if (isArray(node)) {
       renderChildrenArray(request, task, node);
       return;
@@ -1217,12 +1219,12 @@ function renderNodeDestructive(
         'instead.',
     );
   }
-
+  // 如果是字符串类型，则渲染文本实例
   if (typeof node === 'string') {
     pushTextInstance(task.blockedSegment.chunks, node, request.responseState);
     return;
   }
-
+  // 如果是数字类型，转成字符串来创建文本实例
   if (typeof node === 'number') {
     pushTextInstance(
       task.blockedSegment.chunks,
